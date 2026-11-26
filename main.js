@@ -920,6 +920,44 @@ const md = (s) => {
     const [y, m, d] = s.split('-');
     return m.replace(/^0/, '') + '/' + d.replace(/^0/, '');
 };
+const cfmMonthNames = ['JAN', 'FEB', 'MAR', 'APR', 'MAY', 'JUN', 'JUL', 'AUG', 'SEP', 'OCT', 'NOV', 'DEC'];
+const formatCfmDateRange = (start, end) => {
+    const parts = (s) => {
+        const [year, month, day] = s.split('-').map(Number);
+        return { year, month: cfmMonthNames[month - 1], day: String(day).padStart(2, '0') };
+    };
+    const a = parts(start), b = parts(end);
+    return a.year === b.year
+        ? a.day + ' ' + a.month + ' - ' + b.day + ' ' + b.month + ' ' + b.year
+        : a.day + ' ' + a.month + ' ' + a.year + ' - ' + b.day + ' ' + b.month + ' ' + b.year;
+};
+const formatCfmRate = (raw) => Number(raw).toFixed(3).replace(/(\.\d{2})0$/, '$1');
+const cfmInstitution = (name) => {
+    const original = String(name || '').trim();
+    const key = original.replace(/\s+/g, '').toUpperCase();
+    const names = {
+        'CACIB': 'CACIB SL',
+        'IM뱅크': 'IM BANK SL',
+        'KB': 'KOOKMIN SL',
+        'KOOKMIN': 'KOOKMIN SL',
+        'KB증권': 'KB SECURITIES SL',
+        '키움': 'KIWOOM SL',
+        'MS': 'MORGAN SL',
+        '전북은행': 'JEONBUK SL',
+        '유안타': 'YUANTA SL',
+        '삼성': 'SAMSUNG SL',
+        '신금투': 'SHINHAN SECURITIES SL',
+        '신영': 'SHINYOUNG SL',
+        '하나금투': 'HANA SECURITIES SL',
+        '한국투자': 'KOREA INVESTMENT SL',
+        '한화': 'HANWHA SL',
+        'IBK증권': 'IBK SECURITIES SL',
+        '현대차증권': 'HMSC SL'
+    };
+    const mapped = names[key] || original.toUpperCase();
+    return /\sSL$/i.test(mapped) ? mapped : mapped + ' SL';
+};
+
 function makeTicket(e) {
     e?.preventDefault();
     const form = $('ticketForm');
@@ -946,21 +984,16 @@ function makeTicket(e) {
     const header = value('tTenor') + ' (' + md(start) + '~' + md(end) + ', @' + value('tPoint') + ') ';
     // Translate only the approved Korean institution names
     const institutionNames = {
-    '키움': 'KIWOOM',
-    '전북': 'JEONBUK',
-    '유안타': 'YUANTA',
-    '삼성': 'SAMSUNG',
-    '신금투': 'SHIV',
-    '신영': 'SHINYOUNG',
-    '하나금투': 'HANA SEC',
-    '한국투자': 'KIS',
-    '한화': 'HANWHA',
-    '현대차증권': 'HMSE',
-
-    // 추가된 기관명
-    'IM뱅크': 'IM',
-    'KB증권': 'KB SECURITIES',
-    'SK증권': 'SK SECURITIES',
+        '키움': 'KIWOOM',
+        '전북': 'JEONBUK',
+        '유안타': 'YUANTA',
+        '삼성': 'SAMSUNG',
+        '신금투': 'SHIV',
+        '신영': 'SHINYOUNG',
+        '하나금투': 'HANA SEC',
+        '한국투자': 'KIS',
+        '한화': 'HANWHA',
+        '현대차증권': 'HMSE',
     };
 
     const messageInstitution = (name) => {
@@ -977,6 +1010,12 @@ function makeTicket(e) {
     ticketText = build(instA, side, instB, fee, value('tFeeCurrency'));
     $('ticketOutput').textContent = ticketText;
     $('ticketOutputOpposite').textContent = build(instB, opposite, instA, oppositeFee, value('tOppositeFeeCurrency'));
+    const cfmSide = side === 'B/S' ? 'BUY/SELL' : 'SELL/BUY';
+    const cfmText = 'HIHI\nTO CFM\n\n' +
+        cfmInstitution(value('tA')) + ' ' + cfmSide + ' USD ' + amount + ' MIO AGST ' +
+        cfmInstitution(value('tB')) + '\nAT ' + formatCfmRate(value('tNear')) + ' AND ' +
+        formatCfmRate(value('tFar')) + '\nVAL ' + formatCfmDateRange(start, end);
+    $('ticketCfmOutput').textContent = cfmText;
     ticketData = {
         tenor: value('tTenor'),
         start,
@@ -1115,6 +1154,7 @@ function fillTicketFromSheet() {
     if (missing.length) {
         $('ticketOutput').textContent = '확인이 필요한 항목을 입력하면 메시지가 생성됩니다.';
         $('ticketOutputOpposite').textContent = '확인이 필요한 항목을 입력하면 반대편 메시지가 생성됩니다.';
+        $('ticketCfmOutput').textContent = '확인이 필요한 항목을 입력하면 TO CFM 메시지가 생성됩니다.';
         $('ticketParseStatus').textContent = '일부 추출 완료 (' + cells.length + '칸, 시작 열 자동 인식) · 확인 필요: ' + missing.join(', ') + '. 아래에서 수정해 주세요.';
     }
     else {
@@ -1136,7 +1176,7 @@ $('ticketDemo').addEventListener('click', () => {
     $('ticketPaste').textContent = ['20', '엔투원/*국주', 'tn', 'NHIS', '*KB', '-3', '100', '1336.20', '1336.170', '1117', '1109', '1,500.0', '150,000', '0.0', '0', '17-Nov-2026', '18-Nov-2026', '', '', '150,000', '0'].join('\t');
     fillTicketFromSheet();
 });
-$('clearTicketPaste').addEventListener('click', () => { $('ticketPaste').innerHTML = ''; $('ticketStages').style.display = 'none'; ticketText = ''; $('ticketParseStatus').textContent = 'STEP 1: 거래 한 행을 붙여넣어 주세요.'; });
+$('clearTicketPaste').addEventListener('click', () => { $('ticketPaste').innerHTML = ''; $('ticketStages').style.display = 'none'; ticketText = ''; $('ticketCfmOutput').textContent = '거래 행을 붙여넣으면 TO CFM 형식이 자동 생성됩니다.'; $('ticketParseStatus').textContent = 'STEP 1: 거래 한 행을 붙여넣어 주세요.'; });
 $('ticketForm').addEventListener('submit', makeTicket);
 $('ticketForm').addEventListener('input', () => { if ($('ticketStages').style.display !== 'none')
     makeTicket(); });
@@ -1144,6 +1184,7 @@ $('ticketForm').addEventListener('change', () => { if ($('ticketStages').style.d
     makeTicket(); });
 $('copyTicket').addEventListener('click', () => void copy('ticketOutput'));
 $('copyTicketOpposite').addEventListener('click', () => void copy('ticketOutputOpposite'));
+$('copyTicketCfm').addEventListener('click', () => void copy('ticketCfmOutput'));
 $('resetTicket').addEventListener('click', () => {
     for (const [id, v] of Object.entries({
         tTenor: 'TN',
@@ -1162,6 +1203,7 @@ $('resetTicket').addEventListener('click', () => {
         $(id).value = v;
     ticketText = '';
     $('ticketOutput').textContent = '체결 정보를 입력한 뒤 메시지를 생성하세요.';
+    $('ticketCfmOutput').textContent = '체결 정보를 입력한 뒤 TO CFM 메시지를 생성하세요.';
 });
 function normalizeTraining(s) { return s.replace(/\r/g, '').trim().replace(/[ \t]+/g, ' ').replace(/\n+/g, '\n'); }
 function trainingExamples() { try {
