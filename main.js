@@ -944,7 +944,27 @@ function makeTicket(e) {
         : '환율 차이와 스왑포인트가 일치합니다 (1전 = 0.01원 가정).';
     $('ticketStatus').textContent = warning;
     const header = value('tTenor') + ' (' + md(start) + '~' + md(end) + ', @' + value('tPoint') + ') ';
-    const instA = value('tA').toUpperCase(), instB = value('tB').toUpperCase();
+    // Translate only the approved Korean institution names
+    const institutionNames = {
+        '키움': 'KIWOOM',
+        '전북': 'JEONBUK',
+        '유안타': 'YUANTA',
+        '삼성': 'SAMSUNG',
+        '신금투': 'SHIV',
+        '신영': 'SHINYOUNG',
+        '하나금투': 'HANA SEC',
+        '한국투자': 'KIS',
+        '한화': 'HANWHA',
+        '현대차증권': 'HMSE',
+    };
+
+    const messageInstitution = (name) => {
+        const original = String(name || '').trim();
+        return institutionNames[original] || original.toUpperCase();
+    };
+
+    const instA = messageInstitution(value('tA'));
+    const instB = messageInstitution(value('tB'));
     const side = value('tSide').toUpperCase(), opposite = side === 'S/B' ? 'B/S' : 'S/B';
     const nearText = value('tNear').trim(), farText = value('tFar').trim();
     const build = (who, action, other, sideFee, currency) => header + who + ' ' + action + ' USD ' + amount + ' MIO WITH ' + other + ' AT ' + nearText + ' N ' + farText + '\n\nFEE ' + sideFee.toLocaleString('en-US') + ' ' + (currency === 'USD' ? 'USD' : 'WON');
