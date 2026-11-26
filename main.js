@@ -927,9 +927,7 @@ const formatCfmDateRange = (start, end) => {
         return { year, month: cfmMonthNames[month - 1], day: String(day).padStart(2, '0') };
     };
     const a = parts(start), b = parts(end);
-    return a.year === b.year
-        ? a.day + ' ' + a.month + ' - ' + b.day + ' ' + b.month + ' ' + b.year
-        : a.day + ' ' + a.month + ' ' + a.year + ' - ' + b.day + ' ' + b.month + ' ' + b.year;
+
 };
 const formatCfmRate = (raw) => Number(raw).toFixed(3).replace(/(\.\d{2})0$/, '$1');
 const cfmInstitution = (name) => {
@@ -1016,10 +1014,10 @@ function makeTicket(e) {
         formatCfmRate(value('tFar')) + '\nVAL ' + formatCfmDateRange(start, end);
     const cfmHeader = 'HIHI\nTO CFM\n\n';
     const cfmText = cfmHeader +
-        cfmInstitution(value('tA')) + ' ' + cfmSide + ' USD ' + amount + ' MIO AGST KRW WITH' +
+        cfmInstitution(value('tA')) + ' ' + cfmSide + ' USD ' + amount + ' MIO AGST KRW WITH ' +
         cfmInstitution(value('tB')) + cfmRates;
     const cfmTextOpposite = cfmHeader +
-        cfmInstitution(value('tB')) + ' ' + oppositeCfmSide + ' USD ' + amount + ' MIO AGST KRW WITH' +
+        cfmInstitution(value('tB')) + ' ' + oppositeCfmSide + ' USD ' + amount + ' MIO AGST KRW WITH ' +
         cfmInstitution(value('tA')) + cfmRates;
     $('ticketCfmOutput').textContent = cfmText;
     $('ticketCfmOutputOpposite').textContent = cfmTextOpposite;
