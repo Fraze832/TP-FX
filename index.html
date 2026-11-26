@@ -1,0 +1,251 @@
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>FX Operations Copilot</title>
+    <link rel="stylesheet" href="./src/styles.css" />
+  <link rel="stylesheet" href="./styles.css"/>
+</head>
+  <body>
+    <div id="app">
+      <header>
+        <div class="logo">TP<span> / FX</span></div>
+        <div>
+          <small>INDEPENDENT DESK TOOL</small>
+          <h1>FX Operations <em>Copilot</em></h1>
+          <p>QUOTE AGGREGATION · TRADE CONFIRMATION · LOCAL WORKSPACE</p>
+        </div>
+        <div class="tag">BROWSER-ONLY · NO UPLOAD</div>
+      </header>
+      <nav>
+        <button class="tab active" data-tab="quotes">01 / QUOTE BOARD</button
+        ><button class="tab" data-tab="ticket">02 / TRADE TICKET</button
+        ><button class="tab" data-tab="rules">03 / CORRECTION STUDIO</button>
+      </nav>
+      <main>
+        <section id="quotes" class="page">
+          <div class="section-head">
+            <div>
+              <small>01 / QUOTE AGGREGATOR</small>
+              <h2>기관 호가 취합</h2>
+              <p>
+                구글 시트의 A:R 전체 또는 1M~1Y 영역만 복사해 붙여넣으세요.
+                HTML 서식이 전달되면 취소선도 판독합니다.
+              </p>
+            </div>
+          </div>
+          <div class="columns">
+            <div class="panel">
+              <h3>SWAP SHEET · PASTE SHEET DATA</h3>
+              <div
+                id="paste"
+                contenteditable="true"
+                role="textbox"
+                aria-label="시트 데이터 붙여넣기"
+                data-placeholder="여기를 클릭한 후 Ctrl+V / Cmd+V 로 붙여넣기"
+              ></div>
+              <div class="actions">
+                <button class="primary" id="parse">호가 분석하기 →</button
+                ><button id="demo">샘플 데이터</button
+                ><button id="clearPaste">초기화</button>
+              </div>
+              <div class="panel mar-inner"><h3>MATURITY 1 / 다음 거래일 마 · Spot Mar</h3><div id="marPaste" contenteditable="true" role="textbox" aria-label="마거래 시트 붙여넣기" data-placeholder="마거래 구글 시트를 그대로 복사해 붙여넣으세요"></div><div class="actions"><button class="primary" id="parseMar">마거래 분석 →</button><button id="clearMar">마거래 초기화</button></div><div class="notice" id="marStatus">다음 거래일 마거래 시트를 붙여넣으세요.</div></div><div class="panel mar-inner"><h3>MATURITY 2 / 당일 마 · 늦은 마 (메시지 하단)</h3><div id="lateMarPaste" contenteditable="true" role="textbox" aria-label="당일 늦은 마거래 시트 붙여넣기" data-placeholder="당일 늦은 마거래 구글 시트를 복사해 붙여넣으세요"></div><div class="actions"><button class="primary" id="parseLateMar">늦은 마 분석 →</button><button id="clearLateMar">늦은 마 초기화</button></div><div class="notice" id="lateMarStatus">당일 마거래 시트를 붙여넣으세요.</div></div><div class="panel mar-inner"><h3>NONSTANDARD VALUE DATE · val on/off</h3><textarea id="nonstandardPaste" rows="6" placeholder="구글 시트의 6열(날짜, BID 기관, BID 가격, 체결, OFFER 가격, OFFER 기관)을 그대로 복사해 붙여넣으세요."></textarea><p class="hint">날짜·호가·기관별 수량을 자동 추출해 시작일순으로 정렬합니다. 마거래 VALUE 결제일과는 별도입니다.</p><div id="nonstandardStatus" class="notice">비표준일물 시트를 붙여넣으세요.</div></div><div class="notice" id="parseStatus">
+                데이터를 붙여넣으면 분석할 수 있습니다.
+              </div>
+              <label class="check"
+                ><input type="checkbox" id="hideBad" checked /> 취소선(Bad Name)
+                호가 제외</label
+              >
+              <p class="hint">
+                15:30 이후에는 빨간 글씨로 표시된 호가만 자동 선택합니다(색상 정보가 전달된 경우). 색상 정보가 없으면 수동 확인이 필요합니다. 시트 복사 시 취소선이 전달되지 않을 수 있습니다. 아래 분석표에서
+                직접 Bad Name을 지정할 수도 있습니다.
+              </p>
+            </div>
+            <div class="panel">
+              <div class="flex">
+                <h3>TP QUOTE MESSAGE</h3>
+                <button id="copyQuote">메시지 복사</button>
+              </div>
+              <div class="notice">메시지 시각 · <strong id="quoteTimeDisplay">한국시간 자동 입력</strong><input id="quoteTime" type="hidden" value="15:05"/></div>
+              <pre id="quoteOutput" contenteditable="true" role="textbox" aria-label="생성된 TP 메시지 직접 수정" spellcheck="false"> 
+호가를 분석하면 이곳에 공유 메시지가 생성됩니다.</pre
+              >
+              <p class="hint">메시지를 클릭해 바로 수정할 수 있습니다. 수정 후 메시지 복사를 누르면 수정한 내용 그대로 복사됩니다. 다시 분석하면 메시지가 재생성됩니다.</p><p class="hint">
+                Bid = 최대값 / Offer = 최소값 · 취소선 제외 · 수량은 네임에서
+                추출 가능할 때만 표기
+              </p>
+            </div>
+          </div>
+          <div class="panel">
+            <div class="flex">
+              <h3>SELECTED QUOTES & NAME CHECK</h3>
+              <span class="muted" id="quoteCount">0 quotes</span>
+            </div>
+            <div class="scroll">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Tenor</th>
+                    <th>Side</th>
+                    <th>Name</th>
+                    <th>Price</th>
+                    <th>Size</th>
+                    <th>Bad Name</th>
+                  </tr>
+                </thead>
+                <tbody id="quoteRows">
+                  <tr>
+                    <td colspan="6" class="muted">
+                      아직 분석한 호가가 없습니다.
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+          <div class="panel fix-panel"><div class="flex"><h3>DESK FIX ASSISTANT · 오류 바로 수정</h3><span class="muted" id="fixSaved">0개 수정 규칙 저장</span></div><p class="hint">생성된 메시지가 틀리면 정확한 호가 한 줄을 보내세요. 메시지를 즉시 수정하고 같은 테너의 정정 내용을 이 브라우저에 저장합니다.</p><div id="fixMessages" class="fix-messages" role="log" aria-live="polite"></div><div class="fix-input"><textarea id="fixInput" rows="2" placeholder="예: 2m ? / -225 (ofr s)로 고쳐줘"></textarea><button class="primary" id="fixSend">수정 적용 →</button></div><p class="hint">Enter 전송 · Shift+Enter 줄바꿈 · 되돌리기 · 규칙 초기화. 이 기능은 명확한 정정 명령을 처리하며 앱의 파싱 코드를 스스로 수정하지는 않습니다.</p></div>
+        </section>
+        <section id="ticket" class="page hidden">
+          <div class="section-head">
+            <small>02 / TRADE CONFIRMATION</small>
+            <h2>체결 메시지 생성</h2>
+            <p>
+              구글 시트의 체결 행을 붙여넣으면 거래 정보를 자동 추출하고 최종 메시지를 완성합니다. 발송이나 실제 체결은
+              수행하지 않습니다.
+            </p>
+          </div>
+          <div class="panel" style="margin-bottom:16px"><div class="flex"><h3>STEP 1 / GOOGLE SHEETS · 거래 행 붙여넣기</h3><span class="muted">한 거래 행 전체 복사</span></div><div id="ticketPaste" contenteditable="true" role="textbox" aria-label="체결 시트 한 줄 붙여넣기" data-placeholder="시트에서 체결된 거래의 한 행을 복사한 뒤 여기에 붙여넣으세요" style="min-height:90px;max-height:180px;overflow:auto;background:#07131e;border:1px dashed #3b6570;padding:14px;white-space:pre-wrap;font:12px monospace"></div><div class="actions"><button class="primary" id="parseTicket">붙여넣은 행 다시 분석 ↻</button><button id="ticketDemo">예시 행 불러오기</button><button id="clearTicketPaste">붙여넣기 지우기</button></div><div class="notice" id="ticketParseStatus">구글 시트의 거래 한 행을 붙여넣는 즉시 아래 체결 메시지가 자동 생성됩니다. S/B 방향은 확인 후 수정하세요.</div></div>
+          <div class="columns" id="ticketStages" style="display:none">
+            <form id="ticketForm" class="panel">
+              <h3>STEP 2 / TRADE DETAILS · 시트에서 추출된 값 확인 및 수정</h3>
+              <div class="form-grid">
+                <label
+                  >Tenor<input id="tTenor" value="TN" list="ticketTenors" required/><datalist id="ticketTenors"><option value="TN"></option><option value="ON"></option><option value="SN"></option><option value="1W"></option><option value="2W"></option><option value="1M"></option><option value="2M"></option><option value="3M"></option><option value="6M"></option><option value="9M"></option><option value="1Y"></option><option value="1*2"></option><option value="2*3"></option><option value="2W*1M"></option></datalist></label
+                ><label
+                  >Swap Point<input
+                    id="tPoint"
+                    type="number"
+                    step="any"
+                    value="-3"
+                    required /></label
+                ><label
+                  >Start Date<input id="tStart" type="date" required /></label
+                ><label>End Date<input id="tEnd" type="date" required /></label
+                ><label
+                  >Institution (S/B)<input
+                    id="tA"
+                    value="NHIS"
+                    required /></label
+                ><label
+                  >Counterparty<input id="tB" value="KOOKMIN" required /></label
+                ><label
+                  >Side<select id="tSide">
+                    <option value="S/B">S/B</option>
+                    <option value="B/S">B/S</option>
+                  </select></label
+                ><label
+                  >USD Amount (MIO)<input
+                    id="tAmount"
+                    type="number"
+                    min="0.01"
+                    step="any"
+                    value="100"
+                    required /></label
+                ><label
+                  >Near Rate<input
+                    id="tNear"
+                    type="number"
+                    step="any"
+                    value="1336.20"
+                    required /></label
+                ><label
+                  >Far Rate<input
+                    id="tFar"
+                    type="number"
+                    step="any"
+                    value="1336.17"
+                    required /></label
+                ><label
+                  >첫 번째 기관 Fee (KRW)<input
+                    id="tFee"
+                    type="number"
+                    min="0"
+                    step="1"
+                    value="150000"
+                    required
+                /></label><label>첫 번째 기관 수수료 통화<select id="tFeeCurrency"><option value="KRW">KRW (원)</option><option value="USD">USD (달러)</option></select></label><label>반대편 기관 Fee<input id="tOppositeFee" type="number" min="0" step="1" value="150000" required /></label><label>반대편 기관 수수료 통화<select id="tOppositeFeeCurrency"><option value="KRW">KRW (원)</option><option value="USD">USD (달러)</option></select></label>
+              </div>
+              <div class="actions">
+                <button type="submit" class="primary">메시지 생성 →</button
+                ><button type="button" id="resetTicket">입력값 초기화</button>
+              </div>
+              <div id="ticketStatus" class="notice">
+                기간과 환율을 확인한 뒤 생성하세요.
+              </div>
+            </form>
+            <div class="panel">
+              <div class="flex">
+                <h3>STEP 3 / FINAL CONFIRMATION · 자동 완성 메시지</h3>
+                <button id="copyTicket">메시지 복사</button>
+              </div>
+              <pre id="ticketOutput">
+체결 정보를 입력한 뒤 '메시지 생성'을 눌러 주세요.</pre
+              >
+              
+<div class="flex" style="margin-top:20px"><h3>COUNTERPARTY B / 반대편 기관 메시지</h3><button type="button" id="copyTicketOpposite">반대편 메시지 복사</button></div><pre id="ticketOutputOpposite">거래 행을 붙여넣으면 반대편 기관 메시지가 표시됩니다.</pre>
+              <p class="hint">
+                수수료는 입력값을 그대로 사용합니다. 자동 계산하거나 실제 거래
+                사실을 검증하지 않습니다.
+              </p>
+            </div>
+          </div>
+        </section>
+        <section id="rules" class="page hidden"><div class="section-head"><small>03 / USER CORRECTIONS</small><h2>Correction Studio</h2><p>왼쪽에는 원본 구글 시트, 오른쪽에는 정확한 TP 메시지를 넣으세요. 확인된 표기법을 데스크 매뉴얼로 축적할 수 있습니다.</p></div><div class="columns"><div class="panel"><h3>STEP 1 / GOOGLE SHEET · 원본 시트 붙여넣기</h3><div id="exampleSheet" class="sheet-editor" contenteditable="true" role="textbox" aria-label="정답 예시 원본 시트 붙여넣기" data-placeholder="구글 시트의 셀 범위를 그대로 복사해 붙여넣으세요"></div></div><div class="panel"><h3>STEP 2 / CORRECT MESSAGE · 정확한 최종 메시지</h3><div id="exampleAnswer" class="message-editor" contenteditable="true" role="textbox" aria-label="정확한 TP 메시지 붙여넣기" data-placeholder="정확한 TP 호가 메시지를 입력하거나 붙여넣으세요"></div></div></div><div class="panel"><button class="primary" id="saveExample">원본 + 정답 예시 저장</button><div class="notice" id="exampleStatus">동일한 시트를 다시 분석할 때 저장한 정답 메시지를 사용합니다. 데이터는 이 브라우저에만 저장됩니다.</div></div><div class="panel"><div class="flex"><h3>DESK MESSAGE MANUAL · 누적 작성 규칙</h3><span class="muted" id="manualCount"></span></div><p class="hint">원본과 정답 메시지에서 확인되는 표기 규칙을 제안합니다. 추론된 규칙은 승인 전까지 실제 메시지 생성에 자동 적용되지 않습니다.</p><div id="manualList"></div><div id="exampleList" style="display:none"></div></div><div class="panel"><h3>매뉴얼 직접 추가</h3><div class="form-grid"><label>분류<select id="manualCategory"><option>메시지 순서</option><option>비표준일물</option><option>테너 표기</option><option>수량 표기</option><option>기관명</option><option>기타</option></select></label><label>규칙 제목<input id="manualTitle" placeholder="예: 비표준일물 우선 배치"/></label></div><label>규칙 설명<textarea id="manualDetail" rows="3" placeholder="(날짜) val on/off로 쓰고 표준일물보다 위에 배치"></textarea></label><div class="actions"><button id="addManual" class="primary">매뉴얼에 추가</button></div></div></section>
+        <section id="log" class="page hidden" style="display:none">
+          <div class="section-head">
+            <small>03 / TRADE LOG</small>
+            <h2>체결 기록</h2>
+            <p>
+              이 브라우저에만 저장된 확인 메시지를 조회하고 CSV로 내보낼 수
+              있습니다.
+            </p>
+          </div>
+          <div class="panel">
+            <div class="flex">
+              <h3>LOCAL RECORDS</h3>
+              <div class="actions">
+                <button id="exportCsv">CSV 내보내기</button
+                ><button id="clearLog" class="danger">전체 삭제</button>
+              </div>
+            </div>
+            <div class="scroll">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Saved</th>
+                    <th>Tenor</th>
+                    <th>Institutions</th>
+                    <th>USD MIO</th>
+                    <th>Point</th>
+                    <th>Fee</th>
+                    <th>Message</th>
+                    <th></th>
+                  </tr>
+                </thead>
+                <tbody id="logRows"></tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+      </main>
+      <footer>
+        교육·업무 보조용 · 공개 또는 사내 승인된 데이터만 사용하세요. 실제
+        거래상대방·비공개 호가의 외부 웹사이트 입력은 회사 정책을 먼저
+        확인하세요.
+      </footer>
+      <div id="toast" aria-live="polite"></div>
+    </div>
+    <script src="./main.js"></script>
+  </body>
+</html>
