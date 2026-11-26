@@ -1011,11 +1011,18 @@ function makeTicket(e) {
     $('ticketOutput').textContent = ticketText;
     $('ticketOutputOpposite').textContent = build(instB, opposite, instA, oppositeFee, value('tOppositeFeeCurrency'));
     const cfmSide = side === 'B/S' ? 'BUY/SELL' : 'SELL/BUY';
-    const cfmText = 'HIHI\nTO CFM\n\n' +
-        cfmInstitution(value('tA')) + ' ' + cfmSide + ' USD ' + amount + ' MIO AGST ' +
-        cfmInstitution(value('tB')) + '\nAT ' + formatCfmRate(value('tNear')) + ' AND ' +
+    const oppositeCfmSide = side === 'B/S' ? 'SELL/BUY' : 'BUY/SELL';
+    const cfmRates = '\nAT ' + formatCfmRate(value('tNear')) + ' AND ' +
         formatCfmRate(value('tFar')) + '\nVAL ' + formatCfmDateRange(start, end);
+    const cfmHeader = 'HIHI\nTO CFM\n\n';
+    const cfmText = cfmHeader +
+        cfmInstitution(value('tA')) + ' ' + cfmSide + ' USD ' + amount + ' MIO AGST ' +
+        cfmInstitution(value('tB')) + cfmRates;
+    const cfmTextOpposite = cfmHeader +
+        cfmInstitution(value('tB')) + ' ' + oppositeCfmSide + ' USD ' + amount + ' MIO AGST ' +
+        cfmInstitution(value('tA')) + cfmRates;
     $('ticketCfmOutput').textContent = cfmText;
+    $('ticketCfmOutputOpposite').textContent = cfmTextOpposite;
     ticketData = {
         tenor: value('tTenor'),
         start,
@@ -1155,6 +1162,7 @@ function fillTicketFromSheet() {
         $('ticketOutput').textContent = '확인이 필요한 항목을 입력하면 메시지가 생성됩니다.';
         $('ticketOutputOpposite').textContent = '확인이 필요한 항목을 입력하면 반대편 메시지가 생성됩니다.';
         $('ticketCfmOutput').textContent = '확인이 필요한 항목을 입력하면 TO CFM 메시지가 생성됩니다.';
+        $('ticketCfmOutputOpposite').textContent = '확인이 필요한 항목을 입력하면 반대편 TO CFM 메시지가 생성됩니다.';
         $('ticketParseStatus').textContent = '일부 추출 완료 (' + cells.length + '칸, 시작 열 자동 인식) · 확인 필요: ' + missing.join(', ') + '. 아래에서 수정해 주세요.';
     }
     else {
@@ -1176,7 +1184,7 @@ $('ticketDemo').addEventListener('click', () => {
     $('ticketPaste').textContent = ['20', '엔투원/*국주', 'tn', 'NHIS', '*KB', '-3', '100', '1336.20', '1336.170', '1117', '1109', '1,500.0', '150,000', '0.0', '0', '17-Nov-2026', '18-Nov-2026', '', '', '150,000', '0'].join('\t');
     fillTicketFromSheet();
 });
-$('clearTicketPaste').addEventListener('click', () => { $('ticketPaste').innerHTML = ''; $('ticketStages').style.display = 'none'; ticketText = ''; $('ticketCfmOutput').textContent = '거래 행을 붙여넣으면 TO CFM 형식이 자동 생성됩니다.'; $('ticketParseStatus').textContent = 'STEP 1: 거래 한 행을 붙여넣어 주세요.'; });
+$('clearTicketPaste').addEventListener('click', () => { $('ticketPaste').innerHTML = ''; $('ticketStages').style.display = 'none'; ticketText = ''; $('ticketCfmOutput').textContent = '거래 행을 붙여넣으면 TO CFM 형식이 자동 생성됩니다.'; $('ticketCfmOutputOpposite').textContent = '반대편 TO CFM 형식이 여기에 표시됩니다.'; $('ticketParseStatus').textContent = 'STEP 1: 거래 한 행을 붙여넣어 주세요.'; });
 $('ticketForm').addEventListener('submit', makeTicket);
 $('ticketForm').addEventListener('input', () => { if ($('ticketStages').style.display !== 'none')
     makeTicket(); });
@@ -1185,6 +1193,7 @@ $('ticketForm').addEventListener('change', () => { if ($('ticketStages').style.d
 $('copyTicket').addEventListener('click', () => void copy('ticketOutput'));
 $('copyTicketOpposite').addEventListener('click', () => void copy('ticketOutputOpposite'));
 $('copyTicketCfm').addEventListener('click', () => void copy('ticketCfmOutput'));
+$('copyTicketCfmOpposite').addEventListener('click', () => void copy('ticketCfmOutputOpposite'));
 $('resetTicket').addEventListener('click', () => {
     for (const [id, v] of Object.entries({
         tTenor: 'TN',
@@ -1204,6 +1213,7 @@ $('resetTicket').addEventListener('click', () => {
     ticketText = '';
     $('ticketOutput').textContent = '체결 정보를 입력한 뒤 메시지를 생성하세요.';
     $('ticketCfmOutput').textContent = '체결 정보를 입력한 뒤 TO CFM 메시지를 생성하세요.';
+    $('ticketCfmOutputOpposite').textContent = '체결 정보를 입력한 뒤 반대편 TO CFM 메시지를 생성하세요.';
 });
 function normalizeTraining(s) { return s.replace(/\r/g, '').trim().replace(/[ \t]+/g, ' ').replace(/\n+/g, '\n'); }
 function trainingExamples() { try {
