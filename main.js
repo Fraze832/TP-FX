@@ -1012,7 +1012,8 @@ function makeTicket(e) {
     const cfmSide = side === 'B/S' ? 'BUY/SELL' : 'SELL/BUY';
     const oppositeCfmSide = side === 'B/S' ? 'SELL/BUY' : 'BUY/SELL';
     const cfmRates = '\nAT ' + formatCfmRate(value('tNear')) + ' AND ' +
-        farText + '\nVAL ' + formatCfmDateRange(start, end);
+        farText + '\nVAL ' + formatCfmDateRange(start, end) +
+        '\n\nTHESE DEALS ARE DELIVERABLE TRADES\nTHK VM';
     const cfmHeader = 'HIHI\nTO CFM\n\n';
     const cfmText = cfmHeader +
         cfmInstitution(value('tA')) + ' ' + cfmSide + ' USD ' + amount + ' MIO AGST KRW WITH ' +
