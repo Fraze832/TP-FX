@@ -966,7 +966,8 @@ function makeTicket(e) {
     const instA = messageInstitution(value('tA'));
     const instB = messageInstitution(value('tB'));
     const side = value('tSide').toUpperCase(), opposite = side === 'S/B' ? 'B/S' : 'S/B';
-    const nearText = value('tNear').trim(), farText = value('tFar').trim();
+    const nearText = value('tNear').trim();
+    const farText = value('tFar').trim().replace(/(\.\d{2})0$/, '$1');
     const build = (who, action, other, sideFee, currency) => header + who + ' ' + action + ' USD ' + amount + ' MIO WITH ' + other + ' AT ' + nearText + ' N ' + farText + '\n\nFEE ' + sideFee.toLocaleString('en-US') + ' ' + (currency === 'USD' ? 'USD' : 'WON');
     ticketText = build(instA, side, instB, fee, value('tFeeCurrency'));
     $('ticketOutput').textContent = ticketText;
