@@ -1016,10 +1016,10 @@ function makeTicket(e) {
         formatCfmRate(value('tFar')) + '\nVAL ' + formatCfmDateRange(start, end);
     const cfmHeader = 'HIHI\nTO CFM\n\n';
     const cfmText = cfmHeader +
-        cfmInstitution(value('tA')) + ' ' + cfmSide + ' USD ' + amount + ' MIO AGST ' +
+        cfmInstitution(value('tA')) + ' ' + cfmSide + ' USD ' + amount + ' MIO AGST KRW WITH' +
         cfmInstitution(value('tB')) + cfmRates;
     const cfmTextOpposite = cfmHeader +
-        cfmInstitution(value('tB')) + ' ' + oppositeCfmSide + ' USD ' + amount + ' MIO AGST ' +
+        cfmInstitution(value('tB')) + ' ' + oppositeCfmSide + ' USD ' + amount + ' MIO AGST KRW WITH' +
         cfmInstitution(value('tA')) + cfmRates;
     $('ticketCfmOutput').textContent = cfmText;
     $('ticketCfmOutputOpposite').textContent = cfmTextOpposite;
