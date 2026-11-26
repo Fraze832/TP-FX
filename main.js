@@ -958,7 +958,7 @@ function makeTicket(e) {
         '현대차증권': 'HMSE',
         'IM뱅크': 'IM',
         'KB증권': 'KB SECURITIES'
-        'SK증권': 'SK SECURITIES'
+        'SK증권': 'SK SECURITIES',
     };
 
     const messageInstitution = (name) => {
