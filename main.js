@@ -946,16 +946,21 @@ function makeTicket(e) {
     const header = value('tTenor') + ' (' + md(start) + '~' + md(end) + ', @' + value('tPoint') + ') ';
     // Translate only the approved Korean institution names
     const institutionNames = {
-        '키움': 'KIWOOM',
-        '전북': 'JEONBUK',
-        '유안타': 'YUANTA',
-        '삼성': 'SAMSUNG',
-        '신금투': 'SHIV',
-        '신영': 'SHINYOUNG',
-        '하나금투': 'HANA SEC',
-        '한국투자': 'KIS',
-        '한화': 'HANWHA',
-        '현대차증권': 'HMSE',
+    '키움': 'KIWOOM',
+    '전북': 'JEONBUK',
+    '유안타': 'YUANTA',
+    '삼성': 'SAMSUNG',
+    '신금투': 'SHIV',
+    '신영': 'SHINYOUNG',
+    '하나금투': 'HANA SEC',
+    '한국투자': 'KIS',
+    '한화': 'HANWHA',
+    '현대차증권': 'HMSE',
+
+    // 추가된 기관명
+    'IM뱅크': 'IM',
+    'KB증권': 'KB SECURITIES',
+    'SK증권': 'SK SECURITIES',
     };
 
     const messageInstitution = (name) => {
