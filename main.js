@@ -930,6 +930,7 @@ const formatCfmDateRange = (start, end) => {
     return a.day + ' ' + a.month + ' ' + a.year + ' - ' + b.day + ' ' + b.month + ' ' + b.year;
 };
 const formatCfmRate = (raw) => Number(raw).toFixed(3).replace(/(\.\d{2})0$/, '$1');
+const formatFarRate = (raw) => Number(raw).toFixed(4).replace(/(\.\d{2,}?)0+$/, '$1');
 const cfmInstitution = (name) => {
     const original = String(name || '').trim();
     const key = original.replace(/\s+/g, '').toUpperCase();
@@ -1003,7 +1004,7 @@ function makeTicket(e) {
     const instB = messageInstitution(value('tB'));
     const side = value('tSide').toUpperCase(), opposite = side === 'S/B' ? 'B/S' : 'S/B';
     const nearText = value('tNear').trim();
-    const farText = value('tFar').trim().replace(/(\.\d{2})0$/, '$1');
+    const farText = formatFarRate(value('tFar'));
     const build = (who, action, other, sideFee, currency) => header + who + ' ' + action + ' USD ' + amount + ' MIO WITH ' + other + ' AT ' + nearText + ' N ' + farText + '\n\nFEE ' + sideFee.toLocaleString('en-US') + ' ' + (currency === 'USD' ? 'USD' : 'WON');
     ticketText = build(instA, side, instB, fee, value('tFeeCurrency'));
     $('ticketOutput').textContent = ticketText;
@@ -1011,7 +1012,7 @@ function makeTicket(e) {
     const cfmSide = side === 'B/S' ? 'BUY/SELL' : 'SELL/BUY';
     const oppositeCfmSide = side === 'B/S' ? 'SELL/BUY' : 'BUY/SELL';
     const cfmRates = '\nAT ' + formatCfmRate(value('tNear')) + ' AND ' +
-        formatCfmRate(value('tFar')) + '\nVAL ' + formatCfmDateRange(start, end);
+        farText + '\nVAL ' + formatCfmDateRange(start, end);
     const cfmHeader = 'HIHI\nTO CFM\n\n';
     const cfmText = cfmHeader +
         cfmInstitution(value('tA')) + ' ' + cfmSide + ' USD ' + amount + ' MIO AGST KRW WITH ' +
