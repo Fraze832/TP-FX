@@ -956,6 +956,9 @@ function makeTicket(e) {
         '한국투자': 'KIS',
         '한화': 'HANWHA',
         '현대차증권': 'HMSE',
+        'IM뱅크': 'iM',
+        'KB증권': 'KB SECURITIES'
+        'SK증권': 'SK SECURITIES'
     };
 
     const messageInstitution = (name) => {
