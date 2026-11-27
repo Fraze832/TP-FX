@@ -1140,8 +1140,6 @@ function fillTicketFromSheet() {
     const mapping = { tTenor: tenor, tPoint: point === null ? '' : String(point), tA: aName, tB: bName, tAmount: amount === null ? '' : String(amount), tNear: near === null ? '' : c(7).trim().replace(/,/g, ''), tFar: far === null ? '' : c(8).trim().replace(/,/g, ''), tFee: fee === null ? '' : String(fee), tOppositeFee: oppositeFee === null ? '' : String(oppositeFee), tFeeCurrency: currencyFor(aName, fee), tOppositeFeeCurrency: currencyFor(bName, oppositeFee), tStart: start, tEnd: end };
     for (const [id, v] of Object.entries(mapping))
         $(id).value = v;
-    if (value('tB').toUpperCase() === 'KB')
-        $('tB').value = 'KOOKMIN';
     $('ticketStages').style.display = 'grid';
     const missing = [];
     if (!validTenor(tenor))
