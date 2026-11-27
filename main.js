@@ -980,7 +980,8 @@ function makeTicket(e) {
             '전과 다릅니다. 단위를 확인하세요.'
         : '환율 차이와 스왑포인트가 일치합니다 (1전 = 0.01원 가정).';
     $('ticketStatus').textContent = warning;
-    const header = value('tTenor') + ' (' + md(start) + '~' + md(end) + ', @' + value('tPoint') + ') ';
+    const pointText = point === 0 ? 'PAR' : point > 0 ? '+' + point : String(point);
+    const header = value('tTenor') + ' (' + md(start) + '~' + md(end) + ', @' + pointText + ') ';
     // Translate only the approved Korean institution names
     const institutionNames = {
         '키움': 'KIWOOM',
