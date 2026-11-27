@@ -1418,40 +1418,49 @@ const spotMarFeeRates = new Map([
     ['MS', [4000, 'WON']], ['SCB', [5000, 'WON']],
     ['SSBT', [5.5, 'USD']]
 ]);
-function spotMarFee(bank, amount) {
+function spotMarFee(bank, amount, waived = false) {
+    if (waived) return '0 WON';
     const [unit, currency] = spotMarFeeRates.get(bank) || [6000, 'WON'];
     return (amount * unit).toLocaleString('en-US', {maximumFractionDigits: 8}) + ' ' + currency;
 }
 function resetSpotMarOutput(msg) {
     ['smBuyer','smSeller','smPoint','smAmount','smFinalRate','smBuyFee','smSellFee'].forEach(id => $(id).value = '');
-    ['smBuyOutput','smSellOutput','smStatus'].forEach(id => $(id).textContent = msg);
+    ['smBuyOutput','smSellOutput','smBuyCfmOutput','smSellCfmOutput','smStatus'].forEach(id => $(id).textContent = msg);
 }
 function makeSpotMar() {
     const parts = value('smPaste').split(/\s+/);
     if (parts.length !== 4) return resetSpotMarOutput('BUY 기관 / 포인트 / 수량 / SELL 기관 순서로 입력하세요.');
     const [a,p,q,b] = parts;
-    const buyer = spotMarDealerMap.get(a.toUpperCase()), seller = spotMarDealerMap.get(b.toUpperCase());
+    const waived = name => /^\*|\*$/.test(name);
+    const clean = name => name.replace(/^\*+|\*+$/g, '').toUpperCase();
+    const buyer = spotMarDealerMap.get(clean(a)), seller = spotMarDealerMap.get(clean(b));
     if (!buyer || !seller) return resetSpotMarOutput('미등록 딜러명: '+[!buyer?a:'',!seller?b:''].filter(Boolean).join(', '));
     const point = /^PAR$/i.test(p)?0:Number(p), amount = Number(q.replace(/,/g,''));
     if (!Number.isFinite(point)||!Number.isFinite(amount)||amount<=0) return resetSpotMarOutput('포인트와 수량을 확인하세요.');
     const A=messageInstitution(buyer), B=messageInstitution(seller), pt=point===0?'PAR':point>0?'+'+point:String(point);
     $('smBuyer').value=A; $('smSeller').value=B; $('smPoint').value=pt; $('smAmount').value=amount;
-    const buyFee=spotMarFee(buyer,amount), sellFee=spotMarFee(seller,amount);
+    const buyFee=spotMarFee(buyer,amount,waived(a)), sellFee=spotMarFee(seller,amount,waived(b));
     $('smBuyFee').value=buyFee; $('smSellFee').value=sellFee;
     const base=Number(value('smBaseRate')), rate=base+point/100;
     if (!value('smBaseRate')||!Number.isFinite(rate)||base<=0||rate<=0) {
         $('smFinalRate').value='';
-        ['smBuyOutput','smSellOutput','smStatus'].forEach(id=>$(id).textContent='기준 환율을 확인하세요.'); return;
+        ['smBuyOutput','smSellOutput','smBuyCfmOutput','smSellCfmOutput','smStatus'].forEach(id=>$(id).textContent='기준 환율을 확인하세요.'); return;
     }
     const valDate = value('smValueDate');
     if (!valDate || !$('smValueDate').checkValidity()) {
         $('smFinalRate').value='';
-        ['smBuyOutput','smSellOutput','smStatus'].forEach(id=>$(id).textContent='Value Date를 확인하세요.'); return;
+        ['smBuyOutput','smSellOutput','smBuyCfmOutput','smSellCfmOutput','smStatus'].forEach(id=>$(id).textContent='Value Date를 확인하세요.'); return;
     }
     const prefix = 'SPOT MAR (VAL ' + md(valDate) + ') ';
     const r=formatFarRate(rate); $('smFinalRate').value=r;
     const build=(who,side,other,fee)=>prefix+who+' '+side+' USD '+amount+' MIO WITH '+other+' AT '+r+' (@'+pt+')\n\nFEE '+fee;
     $('smBuyOutput').textContent=build(A,'BUY',B,buyFee); $('smSellOutput').textContent=build(B,'SELL',A,sellFee);
+    const [year, month, day] = valDate.split('-');
+    const cfmDate = day + ' ' + cfmMonthNames[Number(month)-1] + ' ' + year;
+    const cfmA = cfmInstitution(buyer), cfmB = cfmInstitution(seller);
+    const cfmBuild = (who, side, other) => 'HIHI\nTO CFM\n\n' + who + ' ' + side + ' USD ' + amount + ' MIO AGST KRW ' + other + '\nAT ' + r + '\nVAL ' + cfmDate + '\n\nTHK VM';
+    $('smBuyCfmOutput').textContent = cfmBuild(cfmA, 'BUYS', 'FROM ' + cfmB);
+    $('smSellCfmOutput').textContent = cfmBuild(cfmB, 'SELLS', 'TO ' + cfmA);
     $('smStatus').textContent='양방향 메시지 생성 완료 · 거래 방향 및 환율을 확인하세요.';
 }
 function resetSpotMarDate() {
@@ -1464,3 +1473,6 @@ $('smGenerate').addEventListener('click',makeSpotMar);
 $('smCopyBuy').addEventListener('click',()=>{if($('smFinalRate').value)copy('smBuyOutput');});
 $('smCopySell').addEventListener('click',()=>{if($('smFinalRate').value)copy('smSellOutput');});
 $('smClear').addEventListener('click',()=>{$('smPaste').value='';resetSpotMarOutput('새로운 거래 행을 입력하세요.');$('smPaste').focus();});
+
+$('smCopyBuyCfm').addEventListener('click',()=>{if($('smFinalRate').value)copy('smBuyCfmOutput');});
+$('smCopySellCfm').addEventListener('click',()=>{if($('smFinalRate').value)copy('smSellCfmOutput');});
