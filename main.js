@@ -1431,12 +1431,23 @@ function makeSpotMar() {
         $('smFinalRate').value='';
         ['smBuyOutput','smSellOutput','smStatus'].forEach(id=>$(id).textContent='기준 환율을 확인하세요.'); return;
     }
+    const valDate = value('smValueDate');
+    if (!valDate || !$('smValueDate').checkValidity()) {
+        $('smFinalRate').value='';
+        ['smBuyOutput','smSellOutput','smStatus'].forEach(id=>$(id).textContent='Value Date를 확인하세요.'); return;
+    }
+    const prefix = 'SPOT MAR (VAL ' + md(valDate) + ') ';
     const r=formatFarRate(rate); $('smFinalRate').value=r;
-    const build=(who,side,other)=>who+' '+side+' USD '+amount+' MIO WITH '+other+' AT '+r+' (@'+pt+')';
+    const build=(who,side,other)=>prefix+who+' '+side+' USD '+amount+' MIO WITH '+other+' AT '+r+' (@'+pt+')';
     $('smBuyOutput').textContent=build(A,'BUY',B); $('smSellOutput').textContent=build(B,'SELL',A);
     $('smStatus').textContent='양방향 메시지 생성 완료 · 거래 방향 및 환율을 확인하세요.';
 }
-['smPaste','smBaseRate'].forEach(id=>$(id).addEventListener('input',makeSpotMar));
+function resetSpotMarDate() {
+    $('smValueDate').value = businessDayShift(kstNow().date, 2);
+}
+resetSpotMarDate();
+$('smResetDate').addEventListener('click',()=>{resetSpotMarDate();makeSpotMar();});
+['smPaste','smBaseRate','smValueDate'].forEach(id=>$(id).addEventListener('input',makeSpotMar));
 $('smGenerate').addEventListener('click',makeSpotMar);
 $('smCopyBuy').addEventListener('click',()=>{if($('smFinalRate').value)copy('smBuyOutput');});
 $('smCopySell').addEventListener('click',()=>{if($('smFinalRate').value)copy('smSellOutput');});
