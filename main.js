@@ -993,6 +993,7 @@ function makeTicket(e) {
         '한국투자': 'KIS',
         '한화': 'HANWHA',
         '현대차증권': 'HMSE',
+        'KB': 'KB BANK',
     };
 
     const messageInstitution = (name) => {
