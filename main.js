@@ -1412,8 +1412,18 @@ const spotMarDealerGroups = {
 };
 
 const spotMarDealerMap = new Map(Object.entries(spotMarDealerGroups).flatMap(([bank,names]) => names.split(/\s+/).map(name => [name.toUpperCase(),bank])));
+// SPOT MAR fee per USD 1 MIO, keyed by original institution.
+const spotMarFeeRates = new Map([
+    ['BNP', [3000, 'WON']], ['HSBC', [4000, 'WON']],
+    ['MS', [4000, 'WON']], ['SCB', [5000, 'WON']],
+    ['SSBT', [5.5, 'USD']]
+]);
+function spotMarFee(bank, amount) {
+    const [unit, currency] = spotMarFeeRates.get(bank) || [6000, 'WON'];
+    return (amount * unit).toLocaleString('en-US', {maximumFractionDigits: 8}) + ' ' + currency;
+}
 function resetSpotMarOutput(msg) {
-    ['smBuyer','smSeller','smPoint','smAmount','smFinalRate'].forEach(id => $(id).value = '');
+    ['smBuyer','smSeller','smPoint','smAmount','smFinalRate','smBuyFee','smSellFee'].forEach(id => $(id).value = '');
     ['smBuyOutput','smSellOutput','smStatus'].forEach(id => $(id).textContent = msg);
 }
 function makeSpotMar() {
@@ -1426,6 +1436,8 @@ function makeSpotMar() {
     if (!Number.isFinite(point)||!Number.isFinite(amount)||amount<=0) return resetSpotMarOutput('포인트와 수량을 확인하세요.');
     const A=messageInstitution(buyer), B=messageInstitution(seller), pt=point===0?'PAR':point>0?'+'+point:String(point);
     $('smBuyer').value=A; $('smSeller').value=B; $('smPoint').value=pt; $('smAmount').value=amount;
+    const buyFee=spotMarFee(buyer,amount), sellFee=spotMarFee(seller,amount);
+    $('smBuyFee').value=buyFee; $('smSellFee').value=sellFee;
     const base=Number(value('smBaseRate')), rate=base+point/100;
     if (!value('smBaseRate')||!Number.isFinite(rate)||base<=0||rate<=0) {
         $('smFinalRate').value='';
@@ -1438,8 +1450,8 @@ function makeSpotMar() {
     }
     const prefix = 'SPOT MAR (VAL ' + md(valDate) + ') ';
     const r=formatFarRate(rate); $('smFinalRate').value=r;
-    const build=(who,side,other)=>prefix+who+' '+side+' USD '+amount+' MIO WITH '+other+' AT '+r+' (@'+pt+')';
-    $('smBuyOutput').textContent=build(A,'BUY',B); $('smSellOutput').textContent=build(B,'SELL',A);
+    const build=(who,side,other,fee)=>prefix+who+' '+side+' USD '+amount+' MIO WITH '+other+' AT '+r+' (@'+pt+')\n\nFEE '+fee;
+    $('smBuyOutput').textContent=build(A,'BUY',B,buyFee); $('smSellOutput').textContent=build(B,'SELL',A,sellFee);
     $('smStatus').textContent='양방향 메시지 생성 완료 · 거래 방향 및 환율을 확인하세요.';
 }
 function resetSpotMarDate() {
