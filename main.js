@@ -957,6 +957,26 @@ const cfmInstitution = (name) => {
     return /\sSL$/i.test(mapped) ? mapped : mapped + ' SL';
 };
 
+    const institutionNames = {
+        '키움': 'KIWOOM',
+        '전북': 'JEONBUK',
+        '유안타': 'YUANTA',
+        '삼성': 'SAMSUNG',
+        '신금투': 'SHIV',
+        '신영': 'SHINYOUNG',
+        '하나금투': 'HANA SEC',
+        '한국투자': 'KIS',
+        '한화': 'HANWHA',
+        '현대차증권': 'HM SEC',
+        'KB': 'KB BANK',
+    };
+
+    const messageInstitution = (name) => {
+        const original = String(name || '').trim();
+        return institutionNames[original] || original.toUpperCase();
+    };
+
+
 function makeTicket(e) {
     e?.preventDefault();
     const form = $('ticketForm');
@@ -983,25 +1003,6 @@ function makeTicket(e) {
     const pointText = point === 0 ? 'PAR' : point > 0 ? '+' + point : String(point);
     const header = value('tTenor') + ' (' + md(start) + '~' + md(end) + ', @' + pointText + ') ';
     // Translate only the approved Korean institution names
-    const institutionNames = {
-        '키움': 'KIWOOM',
-        '전북': 'JEONBUK',
-        '유안타': 'YUANTA',
-        '삼성': 'SAMSUNG',
-        '신금투': 'SHIV',
-        '신영': 'SHINYOUNG',
-        '하나금투': 'HANA SEC',
-        '한국투자': 'KIS',
-        '한화': 'HANWHA',
-        '현대차증권': 'HM SEC',
-        'KB': 'KB BANK',
-    };
-
-    const messageInstitution = (name) => {
-        const original = String(name || '').trim();
-        return institutionNames[original] || original.toUpperCase();
-    };
-
     const instA = messageInstitution(value('tA'));
     const instB = messageInstitution(value('tB'));
     const side = value('tSide').toUpperCase(), opposite = side === 'S/B' ? 'B/S' : 'S/B';
@@ -1014,8 +1015,7 @@ function makeTicket(e) {
     const cfmSide = side === 'B/S' ? 'BUY/SELL' : 'SELL/BUY';
     const oppositeCfmSide = side === 'B/S' ? 'SELL/BUY' : 'BUY/SELL';
     const cfmRates = '\nAT ' + formatCfmRate(value('tNear')) + ' AND ' +
-        farText + '\nVAL ' + formatCfmDateRange(start, end) +
-        '\n\nTHESE DEALS ARE DELIVERABLE TRADES\nTHK VM';
+        farText + '\nVAL ' + formatCfmDateRange(start, end) + '\n\nTHESE DEALS ARE DELIVERABLE TRADES\nTHK VM';
     const cfmHeader = 'HIHI\nTO CFM\n\n';
     const cfmText = cfmHeader +
         cfmInstitution(value('tA')) + ' ' + cfmSide + ' USD ' + amount + ' MIO AGST KRW WITH ' +
@@ -1349,3 +1349,95 @@ const date = new Date(today.getTime() + 86400000);
 const iso = (d) => d.toISOString().slice(0, 10);
 $('tStart').value = iso(today);
 $('tEnd').value = iso(date);
+
+const spotMarDealerGroups = {
+    "ANZ": "안임 안도 안정 안민 안지 안암",
+    "BNP": "벤식 벤하 벤종 벤유 벤문 벤장 벤홍",
+    "BOA": "보아현 보아최 보아황",
+    "BONY": "보니정 보니박 보니종",
+    "CA CIB": "깔연 깔준 깔록 깔정 깔민 깔지 깔류",
+    "CCB": "건설훈 건설현 건설정 건설권 건설남 건설한",
+    "CHASE": "체노 체연",
+    "CITI": "씨조 씨한 씨티빈 씨훈 씨현 씨빈 씨민",
+    "UBS": "UBS박 UBS최 UBS임",
+    "IM뱅크": "IM용 IM환",
+    "DAISHIN": "대신김 대신열 대신황",
+    "DBS": "딥박 딥조",
+    "DEUTSCHE": "도한 도연 도훈 도혁 도황 도수 도빈",
+    "HANA": "하나유 하나남 하나윤 하나최 하나권 하나전 하나원 하나근",
+    "HSBC": "홍샹박 홍샹엽 홍샹강 홍샹권 홍샹배 홍샹김",
+    "IBK": "기머 기정 기춘 기수 기김 기현",
+    "ICBC": "공상오 공상연 공상유 공상김 공상조 공상문 공상권 공상정 공상수",
+    "ING": "잉준 잉박 잉배 잉선 잉유 잉창",
+    "KB": "국머조 국머안 국만 국주 국윤 국찬 국지 국현 국빛 국진",
+    "KB증권": "케증직 케증정 케증황 케증윤 케증심",
+    "KDB": "산업고 산업용 산업준 산업임 산업회 산업김 산업염",
+    "키움": "키움형 키움장 키움엽 키움박 키움노",
+    "KYOBO": "교보곽 교보수 교보최",
+    "MERITZ": "메리츠구 메리츠루 메리츠임 메리츠광 메리츠하 메리츠정 메리츠이 메리츠오 메리츠연 메리츠한",
+    "MIRAE": "미래우 미래현 미래창 미래신 미래노",
+    "MIZUHO": "미규 미조 미김",
+    "MS": "모건이 모건엄",
+    "MUFG": "동경송 동경임 동경하 동경준",
+    "NHB": "농협고 농협최 농협진 농협완 농협오 농협배 농협전 농협됨 농머",
+    "NHIS": "엔투윤 엔투조 엔투훈 엔투석 엔투욱",
+    "NOMURA": "놈민 놈윤",
+    "전북은행": "전북평 전북연",
+    "OCBC": "오씨진 오씨잭 오씨승",
+    "SCB": "스탠차김 스탠차정 스탠차철",
+    "SHINHAN": "신헌 신송 신율 신석 신태 신박 신가 신권 신머 신은 신진",
+    "SOCGEN": "속허 속규 속변 속백 속슬",
+    "SSBT": "왕 문 조 현",
+    "SUHYUP": "수협노 수협송",
+    "UOB": "유오백 유오창 유오석 유오민",
+    "WOORI": "우리김 우리용 우리동 우리진 우머",
+    "유안타": "유안타홍 유안타용 유안타임 유안타석 유안타최 유안타전",
+    "삼성": "삼증김 삼증박 삼증현 삼증동",
+    "신금투": "신금투최 신금투진 신금투란 신금투박 신금투준",
+    "신영": "신영정 신영권 신영김 신영준",
+    "유진": "유진",
+    "하나금투": "하금투변 하금투김",
+    "한국투자": "한투정 한투목 한투근 한투홍",
+    "한화": "한화홍 한화김 한화박 한화석 한화봄",
+    "IBK증권": "기증김",
+    "BUSAN": "부산복 부산민 부산한 부산윤 부산완 부산철 부산회 부산열",
+    "BOC": "비오씨최 비오씨머 비오씨규 비오씨김",
+    "하나머니": "하머",
+    "SK증권": "SK김",
+    "EXIM": "수출입희 수출입훈 수출입윤 수출입장 수출입하 수출입민",
+    "DBFI": "동부진 동부현",
+    "SUMITOMO": "스미한 스미상 스미강",
+    "현대차증권": "현차정",
+    "KSFC": "증권조 증권김 증권임 증권배 증권문"
+};
+
+const spotMarDealerMap = new Map(Object.entries(spotMarDealerGroups).flatMap(([bank,names]) => names.split(/\s+/).map(name => [name.toUpperCase(),bank])));
+function resetSpotMarOutput(msg) {
+    ['smBuyer','smSeller','smPoint','smAmount','smFinalRate'].forEach(id => $(id).value = '');
+    ['smBuyOutput','smSellOutput','smStatus'].forEach(id => $(id).textContent = msg);
+}
+function makeSpotMar() {
+    const parts = value('smPaste').split(/\s+/);
+    if (parts.length !== 4) return resetSpotMarOutput('BUY 기관 / 포인트 / 수량 / SELL 기관 순서로 입력하세요.');
+    const [a,p,q,b] = parts;
+    const buyer = spotMarDealerMap.get(a.toUpperCase()), seller = spotMarDealerMap.get(b.toUpperCase());
+    if (!buyer || !seller) return resetSpotMarOutput('미등록 딜러명: '+[!buyer?a:'',!seller?b:''].filter(Boolean).join(', '));
+    const point = /^PAR$/i.test(p)?0:Number(p), amount = Number(q.replace(/,/g,''));
+    if (!Number.isFinite(point)||!Number.isFinite(amount)||amount<=0) return resetSpotMarOutput('포인트와 수량을 확인하세요.');
+    const A=messageInstitution(buyer), B=messageInstitution(seller), pt=point===0?'PAR':point>0?'+'+point:String(point);
+    $('smBuyer').value=A; $('smSeller').value=B; $('smPoint').value=pt; $('smAmount').value=amount;
+    const base=Number(value('smBaseRate')), rate=base+point/100;
+    if (!value('smBaseRate')||!Number.isFinite(rate)||base<=0||rate<=0) {
+        $('smFinalRate').value='';
+        ['smBuyOutput','smSellOutput','smStatus'].forEach(id=>$(id).textContent='기준 환율을 확인하세요.'); return;
+    }
+    const r=formatFarRate(rate); $('smFinalRate').value=r;
+    const build=(who,side,other)=>who+' '+side+' USD '+amount+' MIO WITH '+other+' AT '+r+' (@'+pt+')';
+    $('smBuyOutput').textContent=build(A,'BUY',B); $('smSellOutput').textContent=build(B,'SELL',A);
+    $('smStatus').textContent='양방향 메시지 생성 완료 · 거래 방향 및 환율을 확인하세요.';
+}
+['smPaste','smBaseRate'].forEach(id=>$(id).addEventListener('input',makeSpotMar));
+$('smGenerate').addEventListener('click',makeSpotMar);
+$('smCopyBuy').addEventListener('click',()=>{if($('smFinalRate').value)copy('smBuyOutput');});
+$('smCopySell').addEventListener('click',()=>{if($('smFinalRate').value)copy('smSellOutput');});
+$('smClear').addEventListener('click',()=>{$('smPaste').value='';resetSpotMarOutput('새로운 거래 행을 입력하세요.');$('smPaste').focus();});

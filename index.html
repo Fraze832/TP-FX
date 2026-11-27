@@ -22,6 +22,7 @@
         <button class="tab active" data-tab="quotes">01 / QUOTE BOARD</button
         ><button class="tab" data-tab="ticket">02 / TRADE TICKET</button
         ><button class="tab" data-tab="rules">03 / CORRECTION STUDIO</button>
+      <button class="tab" data-tab="spotMar">04 / SPOT MAR CONFIRMATION</button>
       </nav>
       <main>
         <section id="quotes" class="page">
@@ -243,6 +244,7 @@
             </div>
           </div>
         </section>
+      <section id="spotMar" class="page hidden"><div class="section-head"><small>04 / SPOT MAR CONFIRMATION</small><h2>스팟마 체결 메시지 생성</h2></div><div class="columns"><div class="panel"><h3>STEP 1 / SPOT MAR TRADE</h3><textarea id="smPaste" rows="4" placeholder="안도  0  30  잉유"></textarea><h3>STEP 2 / BASE RATE</h3><div class="form-grid"><label>기준 환율<input id="smBaseRate" type="number" step="any" placeholder="1327.00"></label><label>최종 환율<input id="smFinalRate" readonly></label><label>BUY 기관<input id="smBuyer" readonly></label><label>SELL 기관<input id="smSeller" readonly></label><label>Swap Point<input id="smPoint" readonly></label><label>USD Amount (MIO)<input id="smAmount" readonly></label></div><div class="actions"><button class="primary" id="smGenerate">메시지 생성 →</button><button id="smClear">거래 초기화</button></div><div class="notice" id="smStatus">거래 행과 기준 환율을 입력하세요.</div></div><div class="panel"><div class="flex"><h3>BUY / FINAL CONFIRMATION</h3><button id="smCopyBuy">메시지 복사</button></div><pre id="smBuyOutput">거래 정보를 입력하세요.</pre><div class="flex" style="margin-top:20px"><h3>SELL / FINAL CONFIRMATION</h3><button id="smCopySell">메시지 복사</button></div><pre id="smSellOutput">거래 정보를 입력하세요.</pre></div></div></section>
       </main>
       <footer>
         교육·업무 보조용 · 공개 또는 사내 승인된 데이터만 사용하세요. 실제
