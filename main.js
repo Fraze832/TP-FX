@@ -992,7 +992,7 @@ function makeTicket(e) {
         '하나금투': 'HANA SEC',
         '한국투자': 'KIS',
         '한화': 'HANWHA',
-        '현대차증권': 'HMSE',
+        '현대차증권': 'HM SEC',
         'KB': 'KB BANK',
     };
 
