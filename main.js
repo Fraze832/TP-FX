@@ -969,6 +969,11 @@ const cfmInstitution = (name) => {
         '한화': 'HANWHA',
         '현대차증권': 'HM SEC',
         'KB': 'KB BANK',
+        'IBK': 'IBK BANK',
+        'KB증권': 'KB SEC',
+        'SK증권': 'SK SEC',
+        '전북은행': 'JEONBUK',
+        'IM뱅크': 'IM',
     };
 
     const messageInstitution = (name) => {
